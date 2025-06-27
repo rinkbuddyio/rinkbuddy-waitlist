@@ -2,7 +2,6 @@
 
 import { useRef, useState, useEffect } from "react"
 import clsx from "clsx"
-import Image from "next/image"
 
 type State = "idle" | "loading" | "success" | "error"
 
@@ -141,22 +140,11 @@ export function WaitlistForm() {
         {/* Waitlist Tab */}
         {activeTab === 'waitlist' && (
           <>
-            {/* Logo & Branding */}
+            {/* Branding */}
             <div className="text-center mb-8">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="w-12 h-12 relative">
-                  <Image
-                    src="/rinkbuddy-logo.png"
-                    alt="RinkBuddy.io"
-                    width={48}
-                    height={48}
-                    className="object-contain"
-                  />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">RinkBuddy.io</h1>
-                  <div className="text-xs text-gray-500 font-medium">SINCE 2025</div>
-                </div>
+              <div className="text-center mb-6">
+                <h1 className="text-3xl font-bold text-gray-900">RinkBuddy.io</h1>
+                <div className="text-sm text-gray-500 font-medium">SINCE 2025</div>
               </div>
               
               <h2 className="text-2xl font-bold text-gray-900 mb-3 leading-tight">
@@ -222,9 +210,9 @@ export function WaitlistForm() {
               <p className="text-sm text-gray-500 mb-4">
                 Join 500+ skaters, coaches, and skating parents
               </p>
-              <p className="text-xs text-gray-400">
-                Finally, an app that knows a combo jump isn't a sandwich
-              </p>
+             <p className="text-xs text-gray-400">
+  Finally, an app that knows a combo jump isn&apos;t a sandwich
+</p>
             </div>
           </>
         )}
@@ -233,18 +221,13 @@ export function WaitlistForm() {
         {activeTab === 'manifesto' && (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <div className="w-12 h-12 relative mx-auto mb-4">
-                <Image
-                  src="/rinkbuddy-logo.png"
-                  alt="RinkBuddy.io"
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                />
+              <div className="text-center mb-4">
+                <h2 className="text-2xl font-bold text-gray-900">RinkBuddy.io</h2>
+                <div className="text-sm text-gray-500 font-medium">SINCE 2025</div>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
                 You already do everything.<br />Now you can prove it.
-              </h2>
+              </h3>
               <p className="text-gray-600 text-sm">
                 Built for the skaters who read the rules, then rewrote the routine.
               </p>
@@ -267,7 +250,7 @@ export function WaitlistForm() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 text-sm">Performance Analytics</h4>
-                  <p className="text-xs text-gray-600 mt-1">Track your progress across competitions. Because sticky notes aren't a system.</p>
+                  <p className="text-xs text-gray-600 mt-1">Track your progress across competitions. Because sticky notes aren&apos;t a system.</p>
                 </div>
               </div>
 
@@ -277,18 +260,18 @@ export function WaitlistForm() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 text-sm">USFSA Rule Integration</h4>
-                  <p className="text-xs text-gray-600 mt-1">We memorized the rulebook so you don't have to. Focus on the skating.</p>
+                 <p className="text-xs text-gray-600 mt-1">We memorized the rulebook so you don&apos;t have to. Focus on the skating.</p>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-blue-600 text-sm">📱</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 text-sm">Mobile-First Design</h4>
+                  <p className="text-xs text-gray-600 mt-1">Upload protocols directly from competitions. No more group texts and vibes.</p>
                 </div>
               </div>
-              <div className="flex items-center justify-center gap-3 mb-6">
-  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-    <span className="text-white font-bold text-lg">RB</span>
-  </div>
-  <div>
-    <h1 className="text-2xl font-bold text-gray-900">RinkBuddy.io</h1>
-    <div className="text-xs text-gray-500 font-medium">SINCE 2025</div>
-  </div>
-</div> 
             </div>
 
             <div className="text-center pt-4 border-t border-gray-100">
