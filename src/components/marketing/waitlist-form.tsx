@@ -1,3 +1,4 @@
+// FILE 2: /src/components/marketing/waitlist-form.tsx
 "use client"
 
 import { useState } from "react"
@@ -28,7 +29,7 @@ export default function WaitlistForm() {
         setStatus("error")
         setMessage(data.error || "Something went wrong. Please try again.")
       }
-    } catch (error) {
+    } catch {
       setStatus("error")
       setMessage("Something went wrong. Please try again.")
     }
