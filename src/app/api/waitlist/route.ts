@@ -60,16 +60,16 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get('user-agent') || 'unknown'
 
     // Insert into Supabase
-    const { data, error } = await supabase
-      .from('waitlist')
-      .insert([
-        { 
-          email: cleanEmail,
-          ip: ip,
-          user_agent: userAgent
-        }
-      ])
-      .select()
+    // Fixed code - just get error, not data:
+const { error } = await supabase
+  .from('waitlist')
+  .insert([
+    { 
+      email: cleanEmail,
+      ip: ip,
+      user_agent: userAgent
+    }
+  ])
 
     if (error) {
       // Check if it's a unique constraint error (duplicate email)
