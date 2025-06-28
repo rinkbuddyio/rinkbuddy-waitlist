@@ -1,4 +1,4 @@
-import { WaitlistForm } from '@/components/marketing/waitlist-form'
+import WaitlistForm from '@/components/marketing/waitlist-form'
 
 export default function Home() {
   return (

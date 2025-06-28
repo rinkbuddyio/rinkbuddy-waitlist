@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
 
+// Add this interface definition
+interface WaitlistEntry {
+  id: string
+  email: string
+  timestamp: string
+  ip: string
+  userAgent: string
+}
+
 export async function GET() {
   try {
     const dataDir = path.join(process.cwd(), 'data')
@@ -15,7 +24,7 @@ export async function GET() {
     }
 
     const fileContent = fs.readFileSync(filePath, 'utf8')
-    const data = JSON.parse(fileContent)
+    const data: WaitlistEntry[] = JSON.parse(fileContent)
 
     return NextResponse.json({ 
       count: data.length,
@@ -56,26 +65,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create waitlist entry
-    const waitlistEntry = {
+    // Get IP address from headers (Next.js way)
+    const forwarded = request.headers.get('x-forwarded-for')
+    const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
+
+    // Create waitlist entry with proper type
+    const waitlistEntry: WaitlistEntry = {
       id: Date.now().toString(),
       email: cleanEmail,
       timestamp: new Date().toISOString(),
-      ip: request.ip || 'unknown',
+      ip: ip,
       userAgent: request.headers.get('user-agent') || 'unknown'
     }
 
     // Ensure data directory exists
-const dataDir = path.join(process.cwd(), 'data')
+    const dataDir = path.join(process.cwd(), 'data')
 
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true })
-}
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true })
+    }
 
     const filePath = path.join(dataDir, 'waitlist.json')
 
     // Read existing data or create empty array
-    let existingData = []
+    let existingData: WaitlistEntry[] = []
     if (fs.existsSync(filePath)) {
       try {
         const fileContent = fs.readFileSync(filePath, 'utf8')
@@ -87,7 +100,7 @@ if (!fs.existsSync(dataDir)) {
     }
 
     // Check if email already exists
-    const emailExists = existingData.some((entry: any) => entry.email === cleanEmail)
+    const emailExists = existingData.some((entry) => entry.email === cleanEmail)
     if (emailExists) {
       return NextResponse.json(
         { success: false, error: 'This email is already on the waitlist! 🎯' },
