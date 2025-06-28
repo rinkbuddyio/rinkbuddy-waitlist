@@ -1,38 +1,30 @@
 // FILE 3: /src/app/api/waitlist/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import { createClient } from '@supabase/supabase-js'
 
-interface WaitlistEntry {
-  id: string
-  email: string
-  timestamp: string
-  ip: string
-  userAgent: string
-}
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export async function GET() {
   try {
-    const dataDir = path.join(process.cwd(), 'data')
-    const filePath = path.join(dataDir, 'waitlist.json')
-
-    if (!fs.existsSync(filePath)) {
-      return NextResponse.json({ 
-        count: 0, 
-        message: 'No signups yet - be the first!' 
-      })
-    }
-
-    const fileContent = fs.readFileSync(filePath, 'utf8')
-    const data: WaitlistEntry[] = JSON.parse(fileContent)
+    // Get count of signups
+    const { count, error } = await supabase
+      .from('waitlist')
+      .select('*', { count: 'exact', head: true })
+    
+    if (error) throw error
 
     return NextResponse.json({ 
-      count: data.length,
-      message: `${data.length} skaters on the RinkBuddy waitlist! 🎉`
+      count: count || 0, 
+      message: count 
+        ? `${count} skaters on the RinkBuddy waitlist! 🎉`
+        : 'No signups yet - be the first!'
     })
 
-  } catch {
-    console.error('Error retrieving waitlist stats')
+  } catch (error) {
+    console.error('Error retrieving waitlist stats:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -62,58 +54,50 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get IP address from headers
     const forwarded = request.headers.get('x-forwarded-for')
     const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
+    const userAgent = request.headers.get('user-agent') || 'unknown'
 
-    const waitlistEntry: WaitlistEntry = {
-      id: Date.now().toString(),
-      email: cleanEmail,
-      timestamp: new Date().toISOString(),
-      ip: ip,
-      userAgent: request.headers.get('user-agent') || 'unknown'
-    }
+    // Insert into Supabase
+    const { data, error } = await supabase
+      .from('waitlist')
+      .insert([
+        { 
+          email: cleanEmail,
+          ip: ip,
+          user_agent: userAgent
+        }
+      ])
+      .select()
 
-    const dataDir = path.join(process.cwd(), 'data')
-
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true })
-    }
-
-    const filePath = path.join(dataDir, 'waitlist.json')
-
-    let existingData: WaitlistEntry[] = []
-    if (fs.existsSync(filePath)) {
-      try {
-        const fileContent = fs.readFileSync(filePath, 'utf8')
-        existingData = JSON.parse(fileContent)
-      } catch {
-        console.error('Error parsing existing data')
-        existingData = []
+    if (error) {
+      // Check if it's a unique constraint error (duplicate email)
+      if (error.code === '23505') {
+        return NextResponse.json(
+          { success: false, error: 'This email is already on the waitlist! 🎯' },
+          { status: 409 }
+        )
       }
+      
+      throw error
     }
 
-    const emailExists = existingData.some((entry) => entry.email === cleanEmail)
-    if (emailExists) {
-      return NextResponse.json(
-        { success: false, error: 'This email is already on the waitlist! 🎯' },
-        { status: 409 }
-      )
-    }
+    // Get total count
+    const { count } = await supabase
+      .from('waitlist')
+      .select('*', { count: 'exact', head: true })
 
-    existingData.push(waitlistEntry)
-
-    fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2))
-
-    console.log(`✅ New RinkBuddy signup: ${cleanEmail} (Total: ${existingData.length})`)
+    console.log(`✅ New RinkBuddy signup: ${cleanEmail} (Total: ${count})`)
 
     return NextResponse.json({ 
       success: true, 
       message: 'Welcome to RinkBuddy! 🎉',
-      total: existingData.length
+      total: count || 0
     })
 
-  } catch {
-    console.error('❌ Error processing waitlist signup')
+  } catch (error) {
+    console.error('❌ Error processing waitlist signup:', error)
     return NextResponse.json(
       { success: false, error: 'Oops! Something went wrong. Please try again.' },
       { status: 500 }
